@@ -6,7 +6,6 @@ class Users(Enum):
     username = 1
     password = 2
 
-
 class DBManager():
     def __init__(self, dbfp: str):
         self.dbfp = dbfp
