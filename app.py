@@ -1,11 +1,6 @@
-from flask import Flask, render_template
-from utils.pyuser import DBManager
+from utils import backend
+from utils import pyuser
 
-app = Flask(__name__)
 
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == "main":
+    pass
