@@ -1,0 +1,52 @@
+/* Funnel Sans */
+@import url('https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    display: grid;
+    place-items: center;
+
+    background: linear-gradient(217deg, #0e3630, #15bbb0);
+    font-family: 'Funnel Sans', sans-serif;
+    font-size: 1.1em;
+    height: 100vh;
+}
+
+.container form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: rgb(255, 255, 255);
+    padding: 5vh 5vw;
+    width: 48vw;
+    border-radius: 1em;
+    box-shadow: 0 0 15px 2px rgba(0, 0, 0, 0.456);
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    margin: 1em 0;
+}
+
+.input-container input,
+#create-account-btn {
+    font-family: 'Funnel Sans', sans-serif;
+    padding: 0.5em;
+    font-size: 0.8em;
+    outline: none;
+}
+
+#create-account-btn {
+    background-color: black;
+    color: white;
+    border-radius: 0.5em;
+}
+
+#create-account-btn:hover {
+    cursor: pointer;
+}
