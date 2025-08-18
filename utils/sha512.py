@@ -1,3 +1,9 @@
+"""
+This is my personal implementation of SHA512, and was developed in a Computer Security course.
+The database does not manage passwords with this implementation, rather this file exists solely for the 
+purpose of demonstrating how a hashing algorithm works.
+"""
+
 from BitVector import BitVector
 import sys
 from typing import Tuple, List
