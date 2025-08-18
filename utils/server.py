@@ -6,15 +6,7 @@ import json
 
 class Router():
     _instance = None
-    _initialized = False
-
-    def __init__(self):
-        if not self._initialized:
-            # For this project we only care about GET and POST routes
-            self.routes = {
-                "GET": {},
-                "POST": {}}
-            self._initialized = True
+    routes = { "GET": {}, "POST": {}}
 
     def add_route(self, method: str, path: str, handler_fn):
         method = method.upper()
