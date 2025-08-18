@@ -1,6 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from http import HTTPStatus
 import os
+import mimetypes
 
 class Router():
     _instance = None
@@ -23,7 +24,7 @@ class Router():
         return cls._instance
     
 class RequestHandler(BaseHTTPRequestHandler):
-    router = Router()
+    router = Router() # stores all of the functions for methods
 
     def do_GET(self):
         route_fn = self.router.retrieve_route_fn(self.path)
@@ -31,8 +32,15 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_error(HTTPStatus.NOT_FOUND)
             return
         
+        if self.path == '/':
+            mime_type = "text/html"
+        else:
+            mime_type, encoding = mimetypes.guess_type(self.path)
+            if mime_type is None:
+                mime_type = "application/octet-stream"
+        
         self.send_response(HTTPStatus.OK)
-        self.send_header("Content-Type", "text/html")
+        self.send_header("Content-Type", mime_type)
         self.end_headers()
         self.wfile.write(route_fn().encode("utf-8"))
 
