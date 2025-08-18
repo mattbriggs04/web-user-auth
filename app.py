@@ -1,8 +1,16 @@
-from utils import server
 from utils.server import Router, AppServer
+import json
 
 app = AppServer()
 router = Router()
+
+def register_user(body: str) -> dict[str, str]:
+    data: dict = json.loads(body)
+    print("Data given to register_user is", data)
+    if data.get("confirmPassword") != data.get("password"):
+        return {"status": "error"}
+    
+    return {"status": "ok"}
 
 def index():
     with open("./index.html", 'r') as page:
@@ -20,9 +28,13 @@ def script():
     return page_content
 
 if __name__ == "__main__":
-    # add routes
+    # add get routes
     router.add_get_route("/", index)
     router.add_get_route("/index.html", index)
     router.add_get_route("/static/styles.css", styles)
     router.add_get_route("/static/script.js", script)
+
+    # add post routes
+    router.add_post_route("/register-user", register_user)
+
     app.start_server()

@@ -7,7 +7,7 @@ createAccountForm.addEventListener("submit", async (e) => {
         name: document.getElementById("name-input").value,
         email: document.getElementById("email-input").value,
         password: document.getElementById("password-input").value,
-        confirm_password: document.getElementById("confirm-password-input").value
+        confirmPassword: document.getElementById("confirm-password-input").value
     }
 
     try {
@@ -17,7 +17,8 @@ createAccountForm.addEventListener("submit", async (e) => {
                 body: JSON.stringify(data)
             });
         const serverResponse = await res.json()
-        console.log("Server responded with " + serverResponse)
+        console.log("Server responded with:")
+        console.log(serverResponse)
     }
     catch (e) {
         console.log(`Error: ${e}`)

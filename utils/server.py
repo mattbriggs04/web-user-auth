@@ -77,6 +77,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             # pass in the body to the handler function
             res = handler_fn(body)
+            
+            # handle the results of the handler function
             if isinstance(res, dict):
                 content = json.dumps(res)
                 mime_type = "application/json"
@@ -87,7 +89,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response(HTTPStatus.OK)
             self.send_header("Content-Type", mime_type)
             self.end_headers()
-            
+
+            # output the return value of the handler function
             self.wfile.write(content.encode("utf-8"))
         except Exception as e:
             self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, str(e))

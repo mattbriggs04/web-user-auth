@@ -10,25 +10,25 @@
 </head>
 <body>
     <div class="container">
-        <form>
+        <form id="create-account-form">
             <div class="form-header">
                 <h1>Sign Up</h1>
             </div>
             <div class="input-container">
                 <label>Name</label>
-                <input type="text" placeholder="Enter your name" required>
+                <input id="name-input" type="text" placeholder="Enter your name" required>
             </div>
             <div class="input-container">
                 <label>Email</label>
-                <input type="email" placeholder="john.smith@example.com" required>
+                <input id="email-input" type="email" placeholder="john.smith@example.com" required>
             </div>
             <div class="input-container">
                 <label for="password">Password</label>
-                <input type="password" placeholder="Password" required>
+                <input id="password-input" type="password" placeholder="Password" required>
             </div>
             <div class="input-container">
                 <label for="confirm-password">Confirm Password</label>
-                <input type="password" placeholder="Password" required>
+                <input id="confirm-password-input" type="password" placeholder="Password" required>
             </div>
             <button id="create-account-btn" type="submit">Create account</button>
         </form>
