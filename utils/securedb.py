@@ -1,4 +1,5 @@
 import sqlite3
+from sha512 import SHA512
 from enum import Enum
 
 class Users(Enum):
@@ -6,9 +7,12 @@ class Users(Enum):
     username = 1
     password = 2
 
-class DBManager():
-    def __init__(self, dbfp: str):
-        self.dbfp = dbfp
+class SecureDB():
+    def __init__(self, db_path: str, salt_rounds: int = 12):
+        self.db_path = db_path
+        self.salt_rounds = salt_rounds
+        
+        self.conn = sqlite3.connect(db_path)
 
     def add_entry(self, username, password_digest):
         with sqlite3.connect(self.dbfp) as conn:

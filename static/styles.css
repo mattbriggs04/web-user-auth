@@ -50,3 +50,13 @@
 #create-account-btn:hover {
     cursor: pointer;
 }
+
+#output-message {
+    margin-top: 2vh;
+    width: 100%;
+    text-align: center;
+}
+
+#output-message.error-msg {
+    color: red;
+}

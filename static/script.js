@@ -1,13 +1,18 @@
 const createAccountForm = document.getElementById("create-account-form");
+const outputMessage = document.getElementById("output-message");
+const nameInput = document.getElementById("name-input");
+const emailInput = document.getElementById("email-input");
+const passwordInput = document.getElementById("password-input");
+const confirmPasswordInput = document.getElementById("confirm-password-input");
 
 createAccountForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const data = {
-        name: document.getElementById("name-input").value,
-        email: document.getElementById("email-input").value,
-        password: document.getElementById("password-input").value,
-        confirmPassword: document.getElementById("confirm-password-input").value
+        name: nameInput.value,
+        email: emailInput.value,
+        password: passwordInput.value,
+        confirmPassword: confirmPasswordInput.value
     }
 
     try {
@@ -17,10 +22,22 @@ createAccountForm.addEventListener("submit", async (e) => {
                 body: JSON.stringify(data)
             });
         const serverResponse = await res.json()
-        console.log("Server responded with:")
-        console.log(serverResponse)
+
+        // handle status cases
+        if (serverResponse.status === "error") {
+            outputMessage.className = "error-msg";
+            outputMessage.innerText = serverResponse.errorMsg;
+        }
+
+
+        if (serverResponse.status === "ok") {
+            outputMessage.className = "";
+            outputMessage.innerText = "Successfully created account."
+        }
+
     }
     catch (e) {
         console.log(`Error: ${e}`)
     }
+    
 })
