@@ -2,6 +2,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from http import HTTPStatus
 import os
 import mimetypes
+import json 
 
 class Router():
     _instance = None
@@ -30,9 +31,6 @@ class Router():
 
     def retrieve_route_fn(self, method: str, path: str):
         method = method.upper()
-        if method not in self.routes:
-            return None
-        
         return self.routes.get(method, {}).get(path)
     
     def __new__(cls):
@@ -44,9 +42,9 @@ class RequestHandler(BaseHTTPRequestHandler):
     router = Router() # stores all of the functions for methods
 
     def do_GET(self):
-        route_fn = self.router.retrieve_route_fn("GET", self.path)
-        if not route_fn:
-            self.send_error(HTTPStatus.NOT_FOUND)
+        handler_fn = self.router.retrieve_route_fn("GET", self.path)
+        if not handler_fn:
+            self.send_error(HTTPStatus.NOT_FOUND, f"{self.path} route not found")
             return
         
         if self.path == '/':
@@ -62,11 +60,39 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", mime_type)
         self.end_headers()
 
-        # write the actual bytes from the page
-        self.wfile.write(route_fn().encode("utf-8"))
+        # get content from handler function and write out as bytes
+        content: str = handler_fn()
+        self.wfile.write(content.encode("utf-8"))
 
     def do_POST(self):
-        pass
+        handler_fn = self.router.retrieve_route_fn("POST", self.path)
+        if handler_fn is None:
+            self.send_error(HTTPStatus.NOT_FOUND, f"{self.path} route not found")
+            return
+
+        try:
+            # read length bytes to get body
+            length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(length).decode("utf-8")
+
+            # pass in the body to the handler function
+            res = handler_fn(body)
+            if isinstance(res, dict):
+                content = json.dumps(res)
+                mime_type = "application/json"
+            else:
+                content = res
+                mime_type = "text/plain"
+
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", mime_type)
+            self.end_headers()
+            
+            self.wfile.write(content.encode("utf-8"))
+        except Exception as e:
+            self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, str(e))
+
+
 
 class AppServer():
     def __init__(self, ip: str='localhost', port: int=8020):
