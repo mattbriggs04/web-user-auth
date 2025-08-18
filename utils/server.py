@@ -5,18 +5,35 @@ import mimetypes
 
 class Router():
     _instance = None
+    _initialized = False
 
     def __init__(self):
-        self.routes = {}
-    
-    def add_get_route(self, path: str, route_fn):
-        self.routes[path] = route_fn
+        if not self._initialized:
+            # For this project we only care about GET and POST routes
+            self.routes = {
+                "GET": {},
+                "POST": {}}
+            self._initialized = True
 
-    def add_route(self, path: str, handler_fn):
-        self.routes[path] = handler_fn
+    def add_route(self, method: str, path: str, handler_fn):
+        method = method.upper()
+        if method in self.routes:
+            self.routes[method][path] = handler_fn
+        else:
+            raise ValueError(f"add_route error: invalid method '{method}'")
 
-    def retrieve_route_fn(self, path: str):
-        return self.routes.get(path)
+    def add_get_route(self, path: str, handler_fn):
+        self.add_route("GET", path, handler_fn)
+
+    def add_post_route(self, path: str, handler_fn):
+        self.add_route("POST", path, handler_fn)
+
+    def retrieve_route_fn(self, method: str, path: str):
+        method = method.upper()
+        if method not in self.routes:
+            return None
+        
+        return self.routes.get(method, {}).get(path)
     
     def __new__(cls):
         if cls._instance is None:
@@ -27,14 +44,16 @@ class RequestHandler(BaseHTTPRequestHandler):
     router = Router() # stores all of the functions for methods
 
     def do_GET(self):
-        route_fn = self.router.retrieve_route_fn(self.path)
+        route_fn = self.router.retrieve_route_fn("GET", self.path)
         if not route_fn:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
         
         if self.path == '/':
+            # special case: a request for the root dir is looking for an html file (index.html)
             mime_type = "text/html"
         else:
+            # handle files based on file extension
             mime_type, encoding = mimetypes.guess_type(self.path)
             if mime_type is None:
                 mime_type = "application/octet-stream"
@@ -42,7 +61,12 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", mime_type)
         self.end_headers()
+
+        # write the actual bytes from the page
         self.wfile.write(route_fn().encode("utf-8"))
+
+    def do_POST(self):
+        pass
 
 class AppServer():
     def __init__(self, ip: str='localhost', port: int=8020):

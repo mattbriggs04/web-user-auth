@@ -5,7 +5,7 @@ app = AppServer()
 router = Router()
 
 def index():
-    with open("./templates/index.html", 'r') as page:
+    with open("./index.html", 'r') as page:
         page_content = page.read()
     return page_content
 
