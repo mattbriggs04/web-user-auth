@@ -10,6 +10,18 @@ class SecureDB():
         self.conn = sqlite3.connect(self.db_path)
         self.hash_alg = hash_alg
 
+        if hash_alg == "scrpyt":
+            self.hash_params = {
+                "n": 2**14,
+                "r": 8,
+                "p": 1
+            }
+        elif hash_alg == "sha512":
+            self.hash_params = {
+                "rounds": 15000
+            }
+        else:
+            self.hash_params = {}
         # create database if not yet created
         self._init_table()
 
@@ -22,25 +34,64 @@ class SecureDB():
         
         return None
     
-    def _hash_password_scrypt(self, password: str, salt: bytes) -> bytes:
+    def _hash_password_scrypt(self, password: str, salt: bytes, n: int=2**14, r: int=8, p: int=1, maxmem: int=0, dklen: int=64) -> bytes:
         password_hash = hashlib.scrypt(
-            password.encode(),  # password in bytes
-            salt=salt,          # randomly generated salt
-            n=2**14,            # CPU / Memory cost factor
-            r=8,                # block size
-            p=1,                # parallelization factor
-            maxmem=0,           # maximum memory usage (0 = unlimited)
-            dklen=64            # length of derived key
+            password.encode(),      # password in bytes
+            salt=salt,              # randomly generated salt
+            n=n,                    # CPU / Memory cost factor
+            r=r,                    # block size
+            p=p,                    # parallelization factor
+            maxmem=maxmem,          # maximum memory usage (0 = unlimited)
+            dklen=dklen             # length of derived key
         )
         return password_hash
 
-    def _hash_password_sha512(self, password: str, salt: bytes, num_rounds: int = 10000) -> bytes:
+    def _hash_password_sha512(self, password: str, salt: bytes, rounds: int = 10000) -> bytes:
         password_hash = password.encode() + salt
 
-        for _ in range(num_rounds):
+        for _ in range(rounds):
             password_hash = hashlib.sha512(password_hash).digest()
 
         return password_hash
+
+    def _pack_mcf(self, hash_alg: str, parameters: dict[str, int], salt: bytes, password_hash: bytes):
+        parameter_str = ",".join(f"{k}={v}" for k, v in parameters.items()) if parameters else ""
+
+        salt_str = salt.hex()
+        password_hash_str = password_hash.hex()
+
+        if parameter_str:
+            mcf_str = f"${hash_alg}${parameter_str}${salt_str}${password_hash_str}"
+        else:
+            mcf_str = f"${hash_alg}${salt_str}${password_hash_str}"
+
+        return mcf_str
+
+
+    def _unpack_mcf(self, mcf: str):
+        parts = mcf.split("$")
+        if len(parts) < 4:
+            raise ValueError("Invalid MCF string")
+
+        hash_alg = parts[1]
+
+        if len(parts) == 5:  # with parameters
+            param_str, salt_hex, hash_hex = parts[2], parts[3], parts[4]
+            parameters = {}
+            if param_str:
+                for kv in param_str.split(","):
+                    k, v = kv.split("=", 1)
+                    parameters[k] = int(v)
+        elif len(parts) == 4:  # no parameters
+            parameters = {}
+            salt_hex, hash_hex = parts[2], parts[3]
+        else:
+            raise ValueError("Invalid MCF string format")
+
+        salt = bytes.fromhex(salt_hex)
+        password_hash = bytes.fromhex(hash_hex)
+
+        return hash_alg, parameters, salt, password_hash
 
     def _init_table(self):
         """creates users table if it does not exist already"""
@@ -50,9 +101,7 @@ class SecureDB():
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             email TEXT UNIQUE NOT NULL,
                             username TEXT UNIQUE NOT NULL,
-                            password_hash BLOB NOT NULL,
-                            salt BLOB NOT NULL,
-                            hash_alg TEXT
+                            mcf_string TEXT NOT NULL
                         );
                     """)
         self.conn.commit()
@@ -67,18 +116,21 @@ class SecureDB():
         # generate password hash to store in database
         salt = os.urandom(16)
         if self.hash_alg == "scrypt":
-            password_hash = self._hash_password_scrypt(password, salt)
+            password_hash = self._hash_password_scrypt(password, salt, **self.hash_params)
         elif self.hash_alg == "sha512":
-            password_hash = self._hash_password_sha512(password, salt)
+            password_hash = self._hash_password_sha512(password, salt, **self.hash_params)
         elif self.hash_alg == "plaintext_salt":
             password_hash = password.encode() + salt
         else:
             raise ValueError(f"Error: SecureDB add_user given an invalid hash algorithm '{self.hash_alg}'")
         
+        # turn password hash into modular-crypt format (MCF)
+        mcf_str = self._pack_mcf(self.hash_alg, self.hash_params, salt, password_hash)
+
         # add entry to database
         try:
             cur = self.conn.cursor()
-            cur.execute("INSERT INTO users (email, username, password_hash, salt, hash_alg) VALUES (?, ?, ?, ?, ?)", (email, username, password_hash, salt, self.hash_alg))
+            cur.execute("INSERT INTO users (email, username, mcf_string) VALUES (?, ?, ?)", (email, username, mcf_str))
             self.conn.commit()
             print("successfully committed user")
         except sqlite3.IntegrityError as e:
@@ -96,19 +148,21 @@ class SecureDB():
     def check_credentials(self, username: str, password: str) -> bool:
         """checks if a username-password pair is valid"""
         cur = self.conn.cursor()
-        cur.execute("SELECT password_hash, salt, hash_alg FROM users WHERE username = ?", (username,))
+        cur.execute("SELECT mcf_string FROM users WHERE username = ?", (username,))
 
-        row = cur.fetchone()
-        if not row:
+        mcf_str = cur.fetchone()[0]
+        if not mcf_str:
             return False
-        stored_hash, salt, hash_alg = row
+        
+        hash_alg, parameters, salt, stored_hash = self._unpack_mcf(mcf_str)
+
         if hash_alg is None:
             hash_alg = self.hash_alg
 
         if hash_alg == "scrypt":
-            test_hash = self._hash_password_scrypt(password, salt)
+            test_hash = self._hash_password_scrypt(password, salt, **parameters)
         elif hash_alg == "sha512":
-            test_hash = self._hash_password_sha512(password, salt)
+            test_hash = self._hash_password_sha512(password, salt, **parameters)
         elif hash_alg == "plaintext_salt":
             test_hash = password.encode() + salt
         else:
