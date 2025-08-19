@@ -132,7 +132,6 @@ class SecureDB():
             cur = self.conn.cursor()
             cur.execute("INSERT INTO users (email, username, mcf_string) VALUES (?, ?, ?)", (email, username, mcf_str))
             self.conn.commit()
-            print("successfully committed user")
         except sqlite3.IntegrityError as e:
             msg = str(e).lower()
             if "username" in msg:

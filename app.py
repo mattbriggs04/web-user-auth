@@ -8,7 +8,6 @@ db_manager = SecureDB(db_path="users.db", hash_alg="scrypt")
 
 def login_user(body: str) -> dict[str, str]:
     data: dict = json.loads(body)
-    print("Data given to login_user is", data)
 
     if not {"username", "password"}.issubset(data.keys()):
         return {"status": "error", "errorMsg": "Error: missing required information"}
@@ -23,7 +22,6 @@ def login_user(body: str) -> dict[str, str]:
 
 def register_user(body: str) -> dict[str, str]:
     data: dict = json.loads(body)
-    print("Data given to register_user is", data)
 
     if not {"email", "username", "password", "confirmPassword"}.issubset(data.keys()):
         return {"status": "error", "errorMsg": "Error: missing required information"}
