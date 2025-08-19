@@ -6,6 +6,7 @@
     box-sizing: border-box;
 }
 
+/* form styles*/
 .container {
     display: grid;
     place-items: center;
@@ -59,4 +60,19 @@
 
 #output-message.error-msg {
     color: red;
+}
+
+.form-footer {
+    margin-top: 1vh;
+    font-size: 0.8rem;
+    text-align: center;
+}
+.form-footer a {
+    text-decoration: none;
+}
+
+
+/* utility */
+.hidden {
+    display: none !important;
 }

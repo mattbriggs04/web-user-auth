@@ -1,11 +1,18 @@
-const createAccountForm = document.getElementById("create-account-form");
-const outputMessage = document.getElementById("output-message");
+// sign-up form global variables
+const signupForm = document.getElementById("signup-form");
+const signupOutputMessage = document.getElementById("signup-output-message");
 const nameInput = document.getElementById("name-input");
 const emailInput = document.getElementById("email-input");
 const passwordInput = document.getElementById("password-input");
 const confirmPasswordInput = document.getElementById("confirm-password-input");
+const loginSwitchBtn = document.getElementById("login-switch-btn");
 
-createAccountForm.addEventListener("submit", async (e) => {
+// login form global variables
+const loginForm = document.getElementById("login-form");
+const signupSwitchBtn = document.getElementById("signup-switch-btn");
+
+// signup form submit handler
+signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const data = {
@@ -25,13 +32,13 @@ createAccountForm.addEventListener("submit", async (e) => {
 
         // handle status cases
         if (serverResponse.status === "error") {
-            outputMessage.className = "error-msg";
-            outputMessage.innerText = serverResponse.errorMsg;
+            signupOutputMessage.className = "error-msg";
+            signupOutputMessage.innerText = serverResponse.errorMsg;
         }
 
         if (serverResponse.status === "ok") {
-            outputMessage.className = "";
-            outputMessage.innerText = "Successfully created account."
+            signupOutputMessage.className = "";
+            signupOutputMessage.innerText = "Successfully created account."
         }
 
     }
@@ -39,4 +46,21 @@ createAccountForm.addEventListener("submit", async (e) => {
         console.log(`Error: ${e}`)
     }
     
-})
+});
+
+// login switch button handler
+loginSwitchBtn.addEventListener("click", () => {
+    signupForm.classList.add("hidden");
+    loginForm.classList.remove("hidden");
+});
+
+// login form submit handler
+loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+});
+
+// signup switch button handler
+signupSwitchBtn.addEventListener("click", () => {
+    loginForm.classList.add("hidden");
+    signupForm.classList.remove("hidden");
+});
