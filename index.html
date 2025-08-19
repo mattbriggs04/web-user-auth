@@ -9,7 +9,7 @@
     <title>Password Simulator</title>
 </head>
 <body>
-    <div class="container">
+    <div id="form-container" class="container">
         <form id="signup-form">
             <div class="form-header">
                 <h1>Sign Up</h1>
@@ -41,16 +41,20 @@
             </div>
             <div class="input-container">
                 <label>Name</label>
-                <input id="name-input" type="text" placeholder="Enter your name" required>
+                <input id="login-name-input" type="text" placeholder="Enter your name" required>
             </div>
             <div class="input-container">
                 <label for="password">Password</label>
-                <input id="password-input" type="password" placeholder="Password" required>
+                <input id="login-password-input" type="password" placeholder="Password" required>
             </div>
-            <button id="create-account-btn" type="submit">Create account</button>
+            <button id="login-btn" type="submit">Login</button>
             <p class="form-footer">Not a member? <a id="signup-switch-btn" href="#">Click here to sign up</a>.</p>
             <p id="login-output-message"></p>
         </form>
+        <div id="welcome-container" class="hidden">
+            <h1 id="welcome-header">Welcome</h1>
+        </div>
     </div>
+
 </body>
 </html>

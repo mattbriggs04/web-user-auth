@@ -17,8 +17,8 @@ class SecureDB():
         self.conn.close()
 
     def _validate_password(self, password: str) -> str | None:
-        # if len(password) < 10:
-        #     return "Password is too short. Must be at least 10 characters."
+        if len(password) < 5:
+            return "Password is too short. Must be at least 5 characters."
         
         return None
     

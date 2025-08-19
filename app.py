@@ -6,6 +6,12 @@ app = AppServer()
 router = Router()
 db_manager = SecureDB("users.db")
 
+def login_user(body: str) -> dict[str, str]:
+    data: dict = json.loads(body)
+    print("Data given to login_user is", data)
+
+    return {"status": "ok"}
+
 def register_user(body: str) -> dict[str, str]:
     data: dict = json.loads(body)
     print("Data given to register_user is", data)
@@ -52,5 +58,5 @@ if __name__ == "__main__":
 
     # add post routes
     router.add_post_route("/register-user", register_user)
-
+    router.add_post_route("/login-user", login_user)
     app.start_server()

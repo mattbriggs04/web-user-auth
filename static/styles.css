@@ -1,9 +1,15 @@
 /* Funnel Sans */
 @import url('https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
 * {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+}
+
+/* utility */
+.hidden {
+    display: none !important;
 }
 
 /* form styles*/
@@ -35,20 +41,23 @@
 }
 
 .input-container input,
-#create-account-btn {
+#create-account-btn,
+#login-btn {
     font-family: 'Funnel Sans', sans-serif;
     padding: 0.5em;
     font-size: 0.8em;
     outline: none;
 }
 
-#create-account-btn {
+#create-account-btn,
+#login-btn {
     background-color: black;
     color: white;
     border-radius: 0.5em;
 }
 
-#create-account-btn:hover {
+#create-account-btn:hover,
+#login-btn:hover {
     cursor: pointer;
 }
 
@@ -71,8 +80,7 @@
     text-decoration: none;
 }
 
-
-/* utility */
-.hidden {
-    display: none !important;
+/* welcome header styles */
+#welcome-container h1 {
+    color: white;
 }

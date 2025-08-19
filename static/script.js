@@ -1,3 +1,5 @@
+// form global variables
+const formContainer = document.getElementById("form-container");
 // sign-up form global variables
 const signupForm = document.getElementById("signup-form");
 const signupOutputMessage = document.getElementById("signup-output-message");
@@ -10,6 +12,22 @@ const loginSwitchBtn = document.getElementById("login-switch-btn");
 // login form global variables
 const loginForm = document.getElementById("login-form");
 const signupSwitchBtn = document.getElementById("signup-switch-btn");
+const loginNameInput = document.getElementById("login-name-input");
+const loginPasswordInput = document.getElementById("login-password-input");
+
+// welcome header global variables
+const welcomeContainer = document.getElementById("welcome-container");
+const welcomeHeader = document.getElementById("welcome-header");
+
+// helper function for switching to welcome page
+function showWelcome(name) {
+    console.log("show welcome activating...");
+    signupForm.classList.add("hidden");
+    loginForm.classList.add("hidden");
+    welcomeContainer.classList.remove("hidden");
+
+    welcomeHeader.innerText = `Welcome, ${name}`;
+}
 
 // signup form submit handler
 signupForm.addEventListener("submit", async (e) => {
@@ -28,22 +46,21 @@ signupForm.addEventListener("submit", async (e) => {
                 method: "POST",
                 body: JSON.stringify(data)
             });
-        const serverResponse = await res.json()
+        const serverResponse = await res.json();
 
         // handle status cases
         if (serverResponse.status === "error") {
             signupOutputMessage.className = "error-msg";
             signupOutputMessage.innerText = serverResponse.errorMsg;
         }
-
-        if (serverResponse.status === "ok") {
+        else if (serverResponse.status === "ok") {
             signupOutputMessage.className = "";
-            signupOutputMessage.innerText = "Successfully created account."
+            signupOutputMessage.innerText = "Successfully created account.";
         }
 
     }
     catch (e) {
-        console.log(`Error: ${e}`)
+        console.log(`Signup form error: ${e}`);
     }
     
 });
@@ -57,6 +74,30 @@ loginSwitchBtn.addEventListener("click", () => {
 // login form submit handler
 loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    const data = {
+        username: loginNameInput.value,
+        password: loginPasswordInput.value
+    }
+
+    try {
+        const res = await fetch("/login-user", {
+            method: "POST",
+            body: JSON.stringify(data)
+        });
+        const serverResponse = await res.json();
+
+        if (serverResponse.status === "error") {
+            signupOutputMessage.className = "error-msg";
+            signupOutputMessage.innerText = serverResponse.errorMsg;
+        }
+        else if (serverResponse.status === "ok") {
+            showWelcome(data.username);
+        }
+    }
+    catch (e) {
+        console.log(`Login form error: ${e}`);
+    }
 });
 
 // signup switch button handler
