@@ -51,7 +51,8 @@ class SecureDB():
                             email TEXT UNIQUE NOT NULL,
                             username TEXT UNIQUE NOT NULL,
                             password_hash BLOB NOT NULL,
-                            salt BLOB NOT NULL
+                            salt BLOB NOT NULL,
+                            hash_alg TEXT
                         );
                     """)
         self.conn.commit()
@@ -69,13 +70,15 @@ class SecureDB():
             password_hash = self._hash_password_scrypt(password, salt)
         elif self.hash_alg == "sha512":
             password_hash = self._hash_password_sha512(password, salt)
+        elif self.hash_alg == "plaintext_salt":
+            password_hash = password.encode() + salt
         else:
             raise ValueError(f"Error: SecureDB add_user given an invalid hash algorithm '{self.hash_alg}'")
         
         # add entry to database
         try:
             cur = self.conn.cursor()
-            cur.execute("INSERT INTO users (email, username, password_hash, salt) VALUES (?, ?, ?, ?)", (email, username, password_hash, salt))
+            cur.execute("INSERT INTO users (email, username, password_hash, salt, hash_alg) VALUES (?, ?, ?, ?, ?)", (email, username, password_hash, salt, self.hash_alg))
             self.conn.commit()
             print("successfully committed user")
         except sqlite3.IntegrityError as e:
@@ -93,19 +96,23 @@ class SecureDB():
     def check_credentials(self, username: str, password: str) -> bool:
         """checks if a username-password pair is valid"""
         cur = self.conn.cursor()
-        cur.execute("SELECT password_hash, salt FROM users WHERE username = ?", (username,))
+        cur.execute("SELECT password_hash, salt, hash_alg FROM users WHERE username = ?", (username,))
 
         row = cur.fetchone()
         if not row:
             return False
-        stored_hash, salt = row
+        stored_hash, salt, hash_alg = row
+        if hash_alg is None:
+            hash_alg = self.hash_alg
 
-        if self.hash_alg == "scrypt":
+        if hash_alg == "scrypt":
             test_hash = self._hash_password_scrypt(password, salt)
-        elif self.hash_alg == "sha512":
+        elif hash_alg == "sha512":
             test_hash = self._hash_password_sha512(password, salt)
+        elif hash_alg == "plaintext_salt":
+            test_hash = password.encode() + salt
         else:
-            raise ValueError(f"Error: SecureDB add_user given an invalid hash algorithm '{self.hash_alg}'")
+            raise ValueError(f"Error: SecureDB add_user given an invalid hash algorithm '{hash_alg}'")
 
         return test_hash == stored_hash
 

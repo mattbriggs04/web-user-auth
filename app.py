@@ -4,7 +4,7 @@ import json
 
 app = AppServer()
 router = Router()
-db_manager = SecureDB("users.db")
+db_manager = SecureDB(db_path="users.db", hash_alg="sha512")
 
 def login_user(body: str) -> dict[str, str]:
     data: dict = json.loads(body)

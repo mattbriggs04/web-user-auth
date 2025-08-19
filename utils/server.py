@@ -87,8 +87,6 @@ class RequestHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, str(e))
 
-
-
 class AppServer():
     def __init__(self, ip: str='localhost', port: int=8020):
         self.ip = ip
@@ -98,3 +96,7 @@ class AppServer():
         server = HTTPServer((self.ip, self.port), RequestHandler, bind_and_activate=True)
         print(f"Server started on http://{self.ip}:{self.port}")
         server.serve_forever()
+
+    def start_server_ssl(self):
+        # TODO: use SSL for secure transmission
+        pass
