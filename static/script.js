@@ -9,7 +9,7 @@ createAccountForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const data = {
-        name: nameInput.value,
+        username: nameInput.value,
         email: emailInput.value,
         password: passwordInput.value,
         confirmPassword: confirmPasswordInput.value
@@ -28,7 +28,6 @@ createAccountForm.addEventListener("submit", async (e) => {
             outputMessage.className = "error-msg";
             outputMessage.innerText = serverResponse.errorMsg;
         }
-
 
         if (serverResponse.status === "ok") {
             outputMessage.className = "";
