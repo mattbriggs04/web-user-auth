@@ -10,6 +10,15 @@ def login_user(body: str) -> dict[str, str]:
     data: dict = json.loads(body)
     print("Data given to login_user is", data)
 
+    if not {"username", "password"}.issubset(data.keys()):
+        return {"status": "error", "errorMsg": "Error: missing required information"}
+    username = data["username"]
+    password = data["password"]
+
+    res = db_manager.check_credentials(username, password)
+    if not res:
+        return {"status": "error", "errorMsg": "Error: invalid username or password"}
+
     return {"status": "ok"}
 
 def register_user(body: str) -> dict[str, str]:

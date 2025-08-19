@@ -11,6 +11,7 @@ const loginSwitchBtn = document.getElementById("login-switch-btn");
 
 // login form global variables
 const loginForm = document.getElementById("login-form");
+const loginOutputMessage = document.getElementById("login-output-message");
 const signupSwitchBtn = document.getElementById("signup-switch-btn");
 const loginNameInput = document.getElementById("login-name-input");
 const loginPasswordInput = document.getElementById("login-password-input");
@@ -50,11 +51,11 @@ signupForm.addEventListener("submit", async (e) => {
 
         // handle status cases
         if (serverResponse.status === "error") {
-            signupOutputMessage.className = "error-msg";
+            signupOutputMessage.classList.add("error-msg");
             signupOutputMessage.innerText = serverResponse.errorMsg;
         }
         else if (serverResponse.status === "ok") {
-            signupOutputMessage.className = "";
+            signupOutputMessage.classList.remove("error-msg");
             signupOutputMessage.innerText = "Successfully created account.";
         }
 
@@ -88,10 +89,11 @@ loginForm.addEventListener("submit", async (e) => {
         const serverResponse = await res.json();
 
         if (serverResponse.status === "error") {
-            signupOutputMessage.className = "error-msg";
-            signupOutputMessage.innerText = serverResponse.errorMsg;
+            loginOutputMessage.classList.add("error-msg")
+            loginOutputMessage.innerText = serverResponse.errorMsg;
         }
         else if (serverResponse.status === "ok") {
+            loginOutputMessage.classList.remove("error-msg")
             showWelcome(data.username);
         }
     }

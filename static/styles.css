@@ -61,13 +61,13 @@
     cursor: pointer;
 }
 
-#output-message {
+.output-message {
     margin-top: 2vh;
     width: 100%;
     text-align: center;
 }
 
-#output-message.error-msg {
+.output-message.error-msg {
     color: red;
 }
 
