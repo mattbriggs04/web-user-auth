@@ -3,9 +3,14 @@ The goal of this project is to demonstrate how passwords are securely stored on 
 
 ## How to use
 First, clone this repository
-
-```git clone```
-
+```
+git clone https://github.com/mattbriggs04/web-user-auth.git
+```
+Ensure you have a recent verson of python installed (>= Python 3.9). Only the python standard library is used, so there are no additional requirements for everything to work. Run `app.py`.
+```
+python3 app.py
+```
+This will start a webserver on port 8020 by default.
 
 ## In Progress
 - Add SSL (HTTPS). Since this is a simulator run locally, this is not a major issue. However, in deployment, it's essential that HTTPS is used for secure transmission of private data.
