@@ -1,26 +1,31 @@
 from utils.server import Router, AppServer
 from utils.securedb import SecureDB
-from utils.sha512 import SHA512
 import json
 
 app = AppServer()
 router = Router()
+db_manager = SecureDB("users.db")
 
 def register_user(body: str) -> dict[str, str]:
     data: dict = json.loads(body)
     print("Data given to register_user is", data)
-    confirm_password = data.get("confirmPassword")
-    password = data.get("password")
+
+    if not {"email", "username", "password", "confirmPassword"}.issubset(data.keys()):
+        return {"status": "error", "errorMsg": "Error: missing required information"}
+    email = data["email"]
+    username = data["username"]
+    password = data["password"]
+    confirm_password = data["confirmPassword"]
 
     # check passwords
-    if data.get("confirmPassword") != data.get("password"):
+    if confirm_password != password:
         return {"status": "error", "errorMsg": "Error: passwords do not match"}
     
-    # ensure username not already in database
-
-    # ensure email not already in database
-
     # add user to database
+    res = db_manager.add_user(email, username, password)
+    if res is not None:
+        return {"status": "error", "errorMsg": res}
+    
     return {"status": "ok"}
 
 def index():
