@@ -10,7 +10,7 @@ class SecureDB():
         self.conn = sqlite3.connect(self.db_path)
         self.hash_alg = hash_alg
 
-        if hash_alg == "scrpyt":
+        if hash_alg == "scrypt":
             self.hash_params = {
                 "n": 2**14,
                 "r": 8,
@@ -57,6 +57,8 @@ class SecureDB():
     def _pack_mcf(self, hash_alg: str, parameters: dict[str, int], salt: bytes, password_hash: bytes):
         parameter_str = ",".join(f"{k}={v}" for k, v in parameters.items()) if parameters else ""
 
+        print(f"parameter string = {parameter_str}")
+        print(f"parameter items = {parameters.items()}")
         salt_str = salt.hex()
         password_hash_str = password_hash.hex()
 
@@ -116,6 +118,7 @@ class SecureDB():
         # generate password hash to store in database
         salt = os.urandom(16)
         if self.hash_alg == "scrypt":
+            print(f"scrypt parameters = {self.hash_params}")
             password_hash = self._hash_password_scrypt(password, salt, **self.hash_params)
         elif self.hash_alg == "sha512":
             password_hash = self._hash_password_sha512(password, salt, **self.hash_params)
