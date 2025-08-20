@@ -4,7 +4,7 @@ The database does not manage passwords with this implementation, rather this fil
 purpose of demonstrating how a hashing algorithm works.
 """
 
-from BitVector import BitVector
+from BitVector import BitVector # pip install bitvector
 import sys
 from typing import Tuple, List
 
